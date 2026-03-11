@@ -18,12 +18,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # 升级到 3.11 消除版本过期警告
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install google-generativeai arxiv
+          # 注意这里安装的是新版库 google-genai
+          pip install google-genai arxiv
 
       - name: Run Python Script
         env:
