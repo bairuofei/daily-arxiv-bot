@@ -2,23 +2,28 @@ name: Daily Arxiv Summary Bot
 
 on:
   schedule:
-    - cron: '0 0 * * *' # 每天北京时间早上 8 点运行 (UTC 0:00)
-  workflow_dispatch:      # 允许你手动点击按钮测试
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4 
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11' # 升级到 3.11 消除版本过期警告
 
       - name: Install dependencies
-        run: pip install google-generativeai arxiv
+        run: |
+          pip install --upgrade pip
+          pip install google-generativeai arxiv
 
       - name: Run Python Script
         env:
@@ -27,10 +32,12 @@ jobs:
 
       - name: Update README
         run: |
-          echo "## 每日学术速览 ($(date +'%Y-%m-%d'))" > README.md
-          cat summary.txt >> README.md
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add README.md
-          git commit -m "Update daily summary"
-          git push
+          if [ -f summary.txt ]; then
+            echo "## 每日学术速览 ($(date +'%Y-%m-%d'))" > README.md
+            cat summary.txt >> README.md
+            git add README.md
+            git commit -m "Update daily summary"
+            git push
+          fi
